@@ -48,3 +48,4 @@ manager-language.json
 *.md
 !/README.md
 /WorkshopPublishing/
+**/Assets/runtime.zip

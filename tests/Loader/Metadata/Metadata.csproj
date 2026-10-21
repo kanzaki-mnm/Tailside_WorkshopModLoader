@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MonoMod.Utils"><HintPath>$(LoaderCore)/MonoMod.Utils.dll</HintPath></Reference>
+    <ProjectReference Include="../../../TailsideWorkshopModLoader/TailsideWorkshopModLoader.csproj" />
+    <Reference Include="BepInEx"><HintPath>$(LoaderCore)/BepInEx.dll</HintPath></Reference>
+    <Reference Include="Mono.Cecil"><HintPath>$(LoaderCore)/Mono.Cecil.dll</HintPath></Reference>
+    <Reference Include="0Harmony"><HintPath>$(LoaderCore)/0Harmony.dll</HintPath></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(ManagedDir)/UnityEngine.dll</HintPath></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedDir)/UnityEngine.CoreModule.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

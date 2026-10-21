@@ -1,6 +1,6 @@
 # Tailside Workshop Mod Loader
 
-Unofficial Workshop support for the Steam version of Tailside, using BepInEx 5 (Unity Mono).
+Unofficial Workshop support for the Steam version of [Tailside](https://store.steampowered.com/app/2922570/), using BepInEx 5 (Unity Mono).
 It loads compatible subscribed Workshop mods while keeping normal `BepInEx/plugins` available. Ordinary character skins do not need this loader.
 
 A **mod environment** is the shared setup that lets the game run compatible mods. Install it once before using those mods.
@@ -219,11 +219,11 @@ The loader targets netstandard2.1. The tool pins its self-contained runtime to 1
 Outputs, ignored by Git:
 
 - `TailsideWorkshopModLoader/release/BepInEx/patchers/TailsideWorkshopModLoader.dll`
-- `UnifiedTools/release-preview/TailsideModSetup.exe` and third-party notices
+- `TailsideModSetup/release-preview/TailsideModSetup.exe` and third-party notices
 
-The direct tool build requires `./UnifiedTools/Build.ps1 -DevelopmentPreview -BepInExZip <archive>`. Normal release builds remain blocked pending release approval and end-to-end checks. Unattended GitHub Actions builds are not configured; lawful game-reference acquisition remains to be arranged.
+The direct tool build requires `./TailsideModSetup/Build.ps1 -DevelopmentPreview -BepInExZip <archive>`. Normal release builds remain blocked pending release approval and end-to-end checks. Unattended GitHub Actions builds are not configured; lawful game-reference acquisition remains to be arranged.
 
-Source layout: `TailsideWorkshopModLoader` is the loader; `UnifiedTools` is the recovery app. `ModEnvironmentSetup` and `ModManager` contain required shared Core, translation, icon and test support, not retired standalone apps. `ModManager/LegacyBridge` contains retained parsing/control helpers required by shared Core, not a distributed old bridge.
+Source layout: `TailsideWorkshopModLoader` contains the runtime loader; `TailsideModSetup` contains the optional setup/recovery app, installation and recovery Core, localization, icons and third-party notices. `tests` contains all checks, isolated-game drivers and fixtures. `tests/Loader/SmokeProbe` is a test-only plugin and manifest, never a release payload. The retained management helpers in `TailsideModSetup/Core/Management` and `Core/LegacyBridge` are internal implementation; old APIs and namespaces remain for a separate cleanup, not additional distributed apps.
 
 ## Testing and known limits
 
@@ -231,18 +231,18 @@ Source layout: `TailsideWorkshopModLoader` is the loader; `UnifiedTools` is the 
 
 Runtime scripts require an explicitly marked **isolated game copy**, Steam and built test helpers. Never run them against the normal game installation. They back up/restore test files; if a test process cannot be stopped, restoration is deferred and the backup location is reported.
 
-From `TailsideWorkshopModLoader`, available checks include:
+From the repository root, available checks include:
 
 ```powershell
-./checks/Run-Checks.ps1 -GameRoot <game> -LoaderCore <core>
-./checks/Test-BuildReferences.ps1 -GameRoot <game> -LoaderCore <core>
-./checks/Test-Runtime.ps1 -SandboxRoot <marked-copy> -FullStartup -WithGraphics
-./checks/Test-SessionProtection.ps1 -SandboxRoot <marked-copy>
-./checks/Test-ProbeCleanup.ps1
-./checks/Test-CleanupLogFailure.ps1 -SandboxRoot <marked-copy>
+./tests/Loader/Run-Checks.ps1 -GameRoot <game> -LoaderCore <core>
+./tests/Loader/Test-BuildReferences.ps1 -GameRoot <game> -LoaderCore <core>
+./tests/Loader/Test-Runtime.ps1 -SandboxRoot <marked-copy> -FullStartup -WithGraphics
+./tests/Loader/Test-SessionProtection.ps1 -SandboxRoot <marked-copy>
+./tests/Loader/Test-ProbeCleanup.ps1
+./tests/Loader/Test-CleanupLogFailure.ps1 -SandboxRoot <marked-copy>
 ```
 
-Dependency experiments: `checks/Collision/Run.ps1 -SandboxRoot <marked-copy> -Mode bep` or `-Mode loader`. Build fixtures with the root check command or `checks/Collision/Build-Fixtures.ps1`. Injector/fixture DLLs are test-only and must never enter a normal game or release. The optional `-LocationFallback` workaround is historical test instrumentation, not needed by the current loader or a shipping fix.
+Dependency experiments: `tests/Loader/Collision/Run.ps1 -SandboxRoot <marked-copy> -Mode bep` or `-Mode loader`. Build fixtures with the root check command or `tests/Loader/Collision/Build-Fixtures.ps1`. Injector/fixture DLLs are test-only and must never enter a normal game or release. The optional `-LocationFallback` workaround is historical test instrumentation, not needed by the current loader or a shipping fix.
 
 Verified locally: zero-warning builds, loader metadata/real-DLL and cleanup checks, ownership/recovery checks, unrelated-folder refusal, path-link write protection, state-specific English/Japanese UI, isolated installation/update/removal and normal-plugin coexistence. Current recorded counts include 161 unified Core checks, 33 Setup checks, 34 loader cleanup + 43 loader Core + 25 real-DLL checks (before logging consolidation), and 154 checks across seven final-label UI scenarios. These summarize separate runs, not a claim that every test was rerun together after documentation changes.
 
@@ -255,5 +255,5 @@ Historical development/validation notes remain local and are excluded from publi
 ## License
 
 My original code and project icons are licensed under [0BSD](https://spdx.org/licenses/0BSD).
-Third-party components retain their respective licenses. Their original notices are preserved in `ModEnvironmentSetup/Assets` and included with applicable binary distributions.
+Third-party components retain their respective licenses. Their original notices are preserved in `TailsideModSetup/Assets` and included with applicable binary distributions.
 

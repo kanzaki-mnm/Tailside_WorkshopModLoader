@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-<PropertyGroup><TargetFramework>netstandard2.1</TargetFramework><AssemblyName>CollisionTestInjector</AssemblyName></PropertyGroup>
-<ItemGroup><ProjectReference Include="../../../TailsideWorkshopModLoader.csproj" />
-<Reference Include="BepInEx"><HintPath>$(LoaderCore)/BepInEx.dll</HintPath><Private>false</Private></Reference>
-<Reference Include="0Harmony"><HintPath>$(LoaderCore)/0Harmony.dll</HintPath><Private>false</Private></Reference>
-<Reference Include="Mono.Cecil"><HintPath>$(LoaderCore)/Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
-</ItemGroup></Project>
