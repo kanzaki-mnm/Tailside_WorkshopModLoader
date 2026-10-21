@@ -5,7 +5,7 @@ It loads compatible subscribed Workshop mods while keeping normal `BepInEx/plugi
 
 A **mod environment** is the shared setup that lets the game run compatible mods. Install it once before using those mods.
 
-**Version 1.0.0 source is available here. Binary releases are still being prepared; there are no user installation downloads yet. The build scripts do not upload or publish anything.**
+**Start with [GitHub Releases](https://github.com/kanzaki-mnm/Tailside_WorkshopModLoader/releases) and choose one installation method below.**
 
 ## Contents
 
@@ -24,14 +24,14 @@ A **mod environment** is the shared setup that lets the game run compatible mods
 
 ## Downloads and requirements
 
-Binary distribution is planned through [GitHub Releases](https://github.com/kanzaki-mnm/Tailside_WorkshopModLoader/releases), with two separate downloads:
+Choose **one** installation download from [GitHub Releases](https://github.com/kanzaki-mnm/Tailside_WorkshopModLoader/releases):
 
 | Download | Use it for |
 | --- | --- |
 | `TailsideModSetup.exe` | Assisted Windows installation and recovery |
 | `TailsideWorkshopModLoader-manual.zip` | Manual installation, including existing BepInEx installations |
 
-GitHub's automatic **Source code (zip / tar.gz)** archives are for developers, not installation packages. The final release packages are still being prepared; the Releases page currently has no installation downloads.
+GitHub's automatic **Source code (zip / tar.gz)** archives are for developers, not installation packages. `ThirdPartyNotices.txt`, `SHA256SUMS.txt` and `UnityDoorstop-4.5.0-source.zip` are reference/source files; they do not need to be copied into the game folder.
 
 The loader itself does **not** require a Workshop subscription. Individual compatible mods still use Workshop.
 
@@ -42,7 +42,7 @@ The loader itself does **not** require a Workshop subscription. Individual compa
 
 ## Assisted installation
 
-1. Close Tailside and download `TailsideModSetup.exe` from Releases when available.
+1. Close Tailside and download `TailsideModSetup.exe` from Releases.
 2. Run it, check the selected Tailside folder, and choose **Install**.
 3. Subscribe to a compatible mod, wait for Steam to finish downloading, and launch Tailside through Steam.
 
@@ -214,14 +214,14 @@ Include the optional setup tool:
 
 For loader-local overrides, copy `TailsideWorkshopModLoader/Build.local.props.example` to `Build.local.props` and edit it. Command-line settings take precedence. Never commit the local file. Direct MSBuild calls accept `-p:GameRoot=...`, `-p:LoaderCore=...` and `-p:ManagedDir=...`.
 
-The loader targets netstandard2.1. The tool pins its self-contained runtime to 10.0.12. NuGet configs disable package feeds, so matching SDK/reference/runtime packs must be available locally for offline builds. Game/Unity DLLs are external build references and must not be committed or bundled into the release.
+The loader targets netstandard2.1. The tool pins its self-contained runtime to 10.0.12. The loader and tool use project-specific NuGet configs with cleared package sources. For offline builds, matching SDK/reference/runtime packs must already be available; configure trusted feeds explicitly if needed on another machine. Game/Unity DLLs are external build references and must not be committed or bundled into the release.
 
 Outputs, ignored by Git:
 
 - `TailsideWorkshopModLoader/release/BepInEx/patchers/TailsideWorkshopModLoader.dll`
 - `TailsideModSetup/release-preview/TailsideModSetup.exe` and third-party notices
 
-The direct tool build requires `./TailsideModSetup/Build.ps1 -DevelopmentPreview -BepInExZip <archive>`. Normal release builds remain blocked pending release approval and end-to-end checks. Unattended GitHub Actions builds are not configured; lawful game-reference acquisition remains to be arranged.
+The direct tool build requires `./TailsideModSetup/Build.ps1 -DevelopmentPreview -BepInExZip <archive>`. This explicit switch builds a local package; build scripts never upload or publish it. Unattended GitHub Actions builds are not configured; game-reference DLLs must be supplied separately.
 
 Source layout: `TailsideWorkshopModLoader` contains the runtime loader; `TailsideModSetup` contains the optional setup/recovery app, installation and recovery Core, localization, icons and third-party notices. `tests` contains all checks, isolated-game drivers and fixtures. `tests/Loader/SmokeProbe` is a test-only plugin and manifest, never a release payload. The retained management helpers in `TailsideModSetup/Core/Management` and `Core/LegacyBridge` are internal implementation; old APIs and namespaces remain for a separate cleanup, not additional distributed apps.
 
@@ -244,13 +244,13 @@ From the repository root, available checks include:
 
 Dependency experiments: `tests/Loader/Collision/Run.ps1 -SandboxRoot <marked-copy> -Mode bep` or `-Mode loader`. Build fixtures with the root check command or `tests/Loader/Collision/Build-Fixtures.ps1`. Injector/fixture DLLs are test-only and must never enter a normal game or release. The optional `-LocationFallback` workaround is historical test instrumentation, not needed by the current loader or a shipping fix.
 
-Verified locally: zero-warning builds, loader metadata/real-DLL and cleanup checks, ownership/recovery checks, unrelated-folder refusal, path-link write protection, state-specific English/Japanese UI, isolated installation/update/removal and normal-plugin coexistence. Current recorded counts include 161 unified Core checks, 33 Setup checks, 34 loader cleanup + 43 loader Core + 25 real-DLL checks (before logging consolidation), and 154 checks across seven final-label UI scenarios. These summarize separate runs, not a claim that every test was rerun together after documentation changes.
+Verified locally: zero-warning builds, loader metadata/real-DLL and cleanup checks, ownership/recovery checks, unrelated-folder refusal, path-link write protection, state-specific English/Japanese UI, isolated installation/update/removal and normal-plugin coexistence. Current recorded counts include 161 unified Core checks, 37 Setup checks, 34 loader cleanup + 43 loader Core + 25 real-DLL checks, and 112 checks across four recovery/safety UI scenarios. These summarize separate runs, not a claim that every test was rerun together after documentation changes.
 
 Also verified in the marked isolated game: installation/update/removal from downloaded draft assets, vanilla startup after disabling/removing BepInEx, six actual Windows permission-denial cases, and real UAC acceptance/cancellation. Friendly English/Japanese permission and cancellation notices passed 62 UI checks; technical details remain in diagnostic reports. These were separate runs, not one complete rerun of every check. The Releases/help URL is configured.
 
 Maintainer tests on the normal Windows 11 game installation also passed: manual and downloaded-exe installation, temporary disable/re-enable/removal, and real private Workshop subscription/update/unsubscription with both installation methods. Steam removed the files on unsubscription, so retained unsubscribed files were not exercised in these live runs. The private test item was deleted afterward and 12 everyday plugins/settings were restored and loaded successfully. Third-party notices and the fixed UnityDoorstop corresponding-source archive are supplied with the release candidate.
 
-Still pending before binary release: final release text/asset review and publication approval. Windows 10, clean Windows and Deck/Proton remain untested. Runtime/tool update is not a single power-loss-proof transaction; retry may be needed if copying the retained exe fails after an environment update.
+Windows 10, clean Windows and Deck/Proton remain untested. Runtime/tool update is not a single power-loss-proof transaction; retry may be needed if copying the retained exe fails after an environment update.
 
 Historical development/validation notes remain local and are excluded from publication. This README is the maintained public guide.
 

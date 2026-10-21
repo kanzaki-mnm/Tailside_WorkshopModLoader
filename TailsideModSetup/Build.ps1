@@ -1,5 +1,5 @@
 param([switch]$DevelopmentPreview,[string]$BepInExZip)
-if(!$DevelopmentPreview){throw 'Development preview only. Use -DevelopmentPreview for isolated tests; release publication approval is still pending.'}
+if(!$DevelopmentPreview){throw 'Use -DevelopmentPreview to build a local package. This command does not upload or publish it.'}
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $assets=Join-Path $PSScriptRoot 'Assets'
