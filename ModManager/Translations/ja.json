@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "translations": {
+    "Cancel": "キャンセル",
     "Mod Manager — Tailside": "Mod Manager — Tailside",
     "Tailside folder:": "Tailsideフォルダ:",
     "Looking for Tailside…": "Tailsideを探しています…",

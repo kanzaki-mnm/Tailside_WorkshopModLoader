@@ -2,6 +2,7 @@
   "languageCode": "en",
   "displayName": "English",
   "translations": {
+    "Cancel": "Cancel",
     " — Something went wrong": " — Something went wrong",
     " cannot continue and will close. Open the guide for help, or save this report before closing.": " cannot continue and will close. Open the guide for help, or save this report before closing.",
     "{0} mod": "{0} mod",
