@@ -44,7 +44,7 @@ internal static class Program {
     var expectedSymbol=scenario switch{
      "fresh" or "fresh-localized" or "invalid-folder"=>UnifiedTools.StatusSymbolKind.Package,
      "manual" or "manual-partial" or "manual-no-mono" or "actual-manual"=>UnifiedTools.StatusSymbolKind.Information,
-     "installed" or "safety"=>UnifiedTools.StatusSymbolKind.Check,
+     "installed" or "safety" or "permission-messages"=>UnifiedTools.StatusSymbolKind.Check,
      "update" or "tool-update"=>UnifiedTools.StatusSymbolKind.Update,
      "paused" or "runtime-paused"=>UnifiedTools.StatusSymbolKind.Paused,
      _=>UnifiedTools.StatusSymbolKind.Warning
@@ -63,7 +63,7 @@ internal static class Program {
      Check(((Expander)window.FindName("DetailsPanel")).Header?.ToString()==(japanese?"ゲームが起動しないとき・修復":"Game won't start? Repair & recovery"),language+" recovery wording");
      var explanation=scenario switch{
       "fresh" or "fresh-localized"=>japanese?"Modを使うための準備を行います":"Set up the environment needed to use mods.",
-      "installed" or "safety"=>japanese?"追加のセットアップは不要です":"No additional setup is needed.",
+      "installed" or "safety" or "permission-messages"=>japanese?"追加のセットアップは不要です":"No additional setup is needed.",
       "update" or "tool-update"=>japanese?"現在のModと設定を残して更新できます":"Update while keeping your mods and settings.",
       _=>null
      };
@@ -80,6 +80,32 @@ internal static class Program {
      Check(!((Button)window.FindName("Primary")).IsVisible&&((Button)window.FindName("Pause")).IsVisible,"updated screen becomes compact installed state");
     }
     if(scenario=="installed")Check(!((Button)window.FindName("Primary")).IsVisible&&!((Button)window.FindName("Repair")).IsVisible,"healthy screen has no redundant check/repair buttons");
+    if(scenario=="permission-messages"){
+     var show=typeof(UnifiedTools.RecoveryWindow).GetMethod("ShowError",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
+     const string sensitive="technical-only-private-path";
+     Exception denied;try{throw new UnauthorizedAccessException(sensitive);}catch(Exception error){denied=error;}
+     var cancelled=new System.ComponentModel.Win32Exception(1223,"technical-only-cancel-detail");
+     foreach(var language in new[]{"en","ja"}){
+      ModManager.UiLanguage.Select(language,persist:false);window.RefreshView();
+      show.Invoke(window,new object[]{denied,"install"});window.RefreshView();
+      var expected=language=="ja"?"このフォルダを変更する権限がありません。続けるには「管理者として再起動」を選んでください。":UnifiedTools.RecoveryWindow.PermissionMessage;
+      Check(((TextBlock)window.FindName("LastResult")).Text==expected,language+" permission guidance is friendly and hides technical path");
+      Check(((Button)window.FindName("Admin")).IsVisible,language+" permission error offers elevation");
+      Capture(window,"-"+language+"-permission");
+      show.Invoke(window,new object[]{cancelled,"administrator restart"});window.RefreshView();
+      expected=language=="ja"?"管理者としての再起動をキャンセルしました。この画面からいつでもやり直せます。":UnifiedTools.RecoveryWindow.ElevationCancelledMessage;
+      Check(((TextBlock)window.FindName("LastResult")).Text==expected,language+" UAC cancellation gives retry guidance");
+      Check(window.IsVisible&&((Button)window.FindName("Admin")).IsEnabled,language+" cancellation keeps window and retry available");
+      Capture(window,"-"+language+"-cancel");
+     }
+     var diagnostic=window.DiagnosticReport();
+     Check(diagnostic.Contains("UnauthorizedAccessException")&&diagnostic.Contains(sensitive)&&diagnostic.Contains("Program.cs"),"report retains original permission type, message and stack trace");
+     Check(diagnostic.Contains("Win32Exception")&&diagnostic.Contains("NativeErrorCode: 1223")&&diagnostic.Contains("technical-only-cancel-detail"),"report retains UAC native code and original detail");
+     Check(diagnostic.Contains("Operation: install")&&diagnostic.Contains("Operation: administrator restart"),"report retains both operations rather than replacing prior error");
+     Check(before==Snapshot(),"friendly messages and in-memory technical history do not write files");
+     ModManager.UiLanguage.Select("en",persist:false);window.RefreshView();
+     Check(((TextBlock)window.FindName("LastResult")).Text==UnifiedTools.RecoveryWindow.ElevationCancelledMessage,"existing guidance follows language switching");
+    }
     if(scenario=="safety"){
      var sheet=new StackPanel{Background=System.Windows.Media.Brushes.White,Margin=new Thickness(12)};
      foreach(var kind in Enum.GetValues<UnifiedTools.StatusSymbolKind>()){

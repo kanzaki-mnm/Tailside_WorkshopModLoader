@@ -39,7 +39,7 @@ internal static class Program
  {
   Process? app=null;
   try{
-   if(args.Length!=4||args[0] is not ("install" or "update" or "remove"))throw new ArgumentException("install|update|remove published-exe marked-game-copy new-work-dir");
+   if(args.Length!=4||args[0] is not ("install" or "update" or "remove" or "pause"))throw new ArgumentException("install|update|remove|pause published-exe marked-game-copy new-work-dir");
    var root=Path.GetFullPath(args[2]);var work=Path.GetFullPath(args[3]);var published=Path.GetFullPath(args[1]);
    if(root.Contains("steamapps",StringComparison.OrdinalIgnoreCase)||!File.Exists(Path.Combine(root,".modsetup-sandbox")))throw new IOException("Marked isolated game copy only");
    var tool=SetupEngine.SafePath(root,SetupEngine.UnifiedToolPath);var receipt=SetupEngine.SafePath(root,SetupEngine.ReceiptPath);
@@ -52,6 +52,17 @@ internal static class Program
     Check(!Directory.Exists(SetupEngine.SafePath(root,"BepInEx/ModEnvironmentSetup")),"no retired tools directory created");
     Close(app);app.Dispose();app=null;File.Delete(download);Check(!File.Exists(download),"original downloaded exe removed after install");
     app=Open(tool,root);w=Window(app);Ready(w,"Remove");Check(Find(w,"Remove")?.Current.IsEnabled==true,"game-local exe reopens owned recovery UI");Close(app);app.Dispose();app=null;
+   }else if(args[0]=="pause"){
+    app=Open(published,root);var w=Window(app);Ready(w,"Pause");Invoke(Find(w,"Pause")!);
+    var yes=Wait(()=>{
+     var dialogs=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,app.Id));
+     foreach(AutomationElement dialog in dialogs){var button=dialog.FindFirst(TreeScope.Descendants,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Button),new PropertyCondition(AutomationElement.AutomationIdProperty,"6")));if(button!=null)return button;}
+     return null;
+    },"Pause confirmation Yes button");Invoke(yes);
+    Wait(()=>!File.Exists(Path.Combine(root,"winhttp.dll"))&&File.Exists(Path.Combine(root,"winhttp.dll.modmanager-disabled"))?"paused":null,"Whole BepInEx disabled");
+    Check(File.Exists(receipt),"pause retains ownership record");
+    Check(File.Exists(SetupEngine.SafePath(root,SetupEngine.BridgePath)),"pause retains loader files without loading them");
+    Close(app);app.Dispose();app=null;
    }else if(args[0]=="update"){
     if(!Directory.Exists(work)||!File.Exists(receipt))throw new IOException("Install phase required");
     var runtime=System.Text.Json.JsonSerializer.Deserialize<Receipt>(File.ReadAllText(receipt))!.Files.ToDictionary(x=>SetupEngine.SafePath(root,x.Path),x=>Hash(SetupEngine.SafePath(root,x.Path)));

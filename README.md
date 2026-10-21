@@ -190,7 +190,7 @@ The loader adds compatible subscribed mods to BepInEx's loading scope. It does n
 
 Loader validation failure skips Workshop candidates while retaining normal-plugin discovery. This does not contain failures inside loaded mods or dependency conflicts. Write your mod's configuration/logs to normal mod-owned locations, never into Workshop distribution files.
 
-For individual Workshop pages, link users to this README's installation section and the actual Releases page once assigned. Explain that the loader is installed once, then mods are subscribed to normally; the loader itself needs no Workshop subscription.
+For individual Workshop pages, link users to this README's installation section and the Releases page. Explain that the loader is installed once, then mods are subscribed to normally; the loader itself needs no Workshop subscription.
 
 ## Building from source
 
@@ -246,7 +246,9 @@ Dependency experiments: `checks/Collision/Run.ps1 -SandboxRoot <marked-copy> -Mo
 
 Verified locally: zero-warning builds, loader metadata/real-DLL and cleanup checks, ownership/recovery checks, unrelated-folder refusal, path-link write protection, state-specific English/Japanese UI, isolated installation/update/removal and normal-plugin coexistence. Current recorded counts include 161 unified Core checks, 33 Setup checks, 34 loader cleanup + 43 loader Core + 25 real-DLL checks (before logging consolidation), and 154 checks across seven final-label UI scenarios. These summarize separate runs, not a claim that every test was rerun together after documentation changes.
 
-Still pending before binary release: real individual-Workshop subscription/update/unsubscription, actual permission-denial/UAC behavior, final packages/third-party redistribution review, public URLs and installation from the downloaded release assets. Windows 10, clean Windows and Deck/Proton remain untested. Runtime/tool update is not a single power-loss-proof transaction; retry may be needed if copying the retained exe fails after an environment update.
+Also verified in the marked isolated game: installation/update/removal from downloaded draft assets, vanilla startup after disabling/removing BepInEx, six actual Windows permission-denial cases, and real UAC acceptance/cancellation. Friendly English/Japanese permission and cancellation notices passed 62 UI checks; technical details remain in diagnostic reports. These were separate runs, not one complete rerun of every check. The Releases/help URL is configured.
+
+Still pending before binary release: real individual-Workshop subscription/update/unsubscription, final third-party redistribution review (including matching UnityDoorstop source availability), maintainer download/installation acceptance, and publication approval. Windows 10, clean Windows and Deck/Proton remain untested. Runtime/tool update is not a single power-loss-proof transaction; retry may be needed if copying the retained exe fails after an environment update.
 
 Historical development/validation notes remain local and are excluded from publication. This README is the maintained public guide.
 

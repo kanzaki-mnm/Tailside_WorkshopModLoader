@@ -17,6 +17,16 @@ public sealed class BridgeTestDriver : BaseUnityPlugin
     {
         testing=Environment.GetCommandLineArgs().Contains("--bridge-smoke-test") && File.Exists(Path.Combine(Paths.GameRootPath,".modsetup-sandbox"));
         if(!testing) return;
+        var expectedCompany=Environment.GetEnvironmentVariable("MODSETUP_EXPECT_COMPANY");
+        if(!string.IsNullOrEmpty(expectedCompany))
+        {
+            var expectedProduct=Environment.GetEnvironmentVariable("MODSETUP_EXPECT_PRODUCT");
+            var identity="ENGINE_COMPANY="+Application.companyName+"\nENGINE_PRODUCT="+Application.productName+"\nENGINE_DATA="+Application.persistentDataPath;
+            File.WriteAllText(Path.Combine(Paths.ConfigPath,"EngineIdentity.log"),identity);
+            if(Application.companyName!=expectedCompany || Application.productName!=expectedProduct || !Application.persistentDataPath.Replace('\\','/').EndsWith("/"+expectedCompany+"/"+expectedProduct,StringComparison.Ordinal))
+                throw new InvalidOperationException("Engine identity isolation was not applied.");
+        }
+
         diagnostic=Path.Combine(Paths.ConfigPath,"DriverDiagnostic.log");
         File.AppendAllText(diagnostic,"Awake args="+string.Join(" | ",Environment.GetCommandLineArgs())+"\nassembly="+GetType().Assembly.Location+" enabled="+enabled+" active="+gameObject.activeInHierarchy+"\n");
         Application.runInBackground=true;

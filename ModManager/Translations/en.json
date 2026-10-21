@@ -171,7 +171,9 @@
     "Mod environment not installed": "Mod environment not installed",
     "Set up the environment needed to use mods.": "Set up the environment needed to use mods.",
     "Install": "Install",
-    "Environment and game-local tool updated. Mods and settings are kept.": "Environment and game-local tool updated. Mods and settings are kept."
+    "Environment and game-local tool updated. Mods and settings are kept.": "Environment and game-local tool updated. Mods and settings are kept.",
+    "You don't have permission to change this folder. To continue, choose Restart as administrator.": "You don't have permission to change this folder. To continue, choose Restart as administrator.",
+    "Restarting as administrator was cancelled. You can try again from this window at any time.": "Restarting as administrator was cancelled. You can try again from this window at any time."
   },
   "schemaVersion": 1
 }

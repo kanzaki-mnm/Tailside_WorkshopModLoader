@@ -1,11 +1,13 @@
-param([Parameter(Mandatory=$true)][string]$GameRoot)
+param([Parameter(Mandatory=$true)][string]$GameRoot,[string]$ToolExe)
 $ErrorActionPreference='Stop'
 $GameRoot=[IO.Path]::GetFullPath($GameRoot).TrimEnd('\')
 if($GameRoot.Contains('steamapps',[StringComparison]::OrdinalIgnoreCase) -or !(Test-Path -LiteralPath "$GameRoot/.modsetup-sandbox")){throw 'Marked isolated game copy only'}
 if(Get-Process Tailside,TailsideModSetup -ErrorAction SilentlyContinue){throw 'Game or tool running'}
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $backup=Join-Path $repo ('.local/backups/Tools-lifecycle-'+[guid]::NewGuid().ToString('N'))
-$tool=Join-Path $repo 'UnifiedTools/release-preview/TailsideModSetup.exe'
+$tool=if($ToolExe){[IO.Path]::GetFullPath($ToolExe)}else{Join-Path $repo 'UnifiedTools/release-preview/TailsideModSetup.exe'}
+if(!(Test-Path -LiteralPath $tool -PathType Leaf)){throw 'Tool executable not found'}
+Write-Output ('Testing supplied executable SHA256='+ (Get-FileHash -LiteralPath $tool).Hash)
 $driver=Join-Path $repo 'UnifiedTools/LifecycleChecks/bin/Release/net10.0-windows/LifecycleChecks.dll'
 $work=Join-Path $backup 'downloads'
 $paths=@('BepInEx','winhttp.dll','doorstop_config.ini','.doorstop_version','winhttp.dll.modmanager-disabled')

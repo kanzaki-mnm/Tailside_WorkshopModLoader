@@ -14,6 +14,10 @@ public partial class RecoveryWindow:Window
     private string? root;
     private EnvironmentView? view;
     private bool busy,loadingLanguage,removalCompleted;
+    private string? friendlyResultKey;
+    private readonly List<string> diagnosticErrors=[];
+    public const string PermissionMessage="You don't have permission to change this folder. To continue, choose Restart as administrator.";
+    public const string ElevationCancelledMessage="Restarting as administrator was cancelled. You can try again from this window at any time.";
     public const string CleanupMessage="Close this window, then you may delete BepInEx/TailsideModSetup. Keep any reports or repair backups you need first.";
     private readonly DispatcherTimer timer=new(){Interval=TimeSpan.FromSeconds(3)};
     public bool CanSaveAutomatically{get{try{return root!=null&&controller.OwnershipOf(root)==Ownership.Owned;}catch{return false;}}}
@@ -38,6 +42,7 @@ public partial class RecoveryWindow:Window
     }
     public void RefreshView()
     {
+        if(friendlyResultKey!=null)LastResult.Text=T(friendlyResultKey);
         VersionText.Text=$"{App.ToolVersion} · Unofficial community tool";
         Title=T("Tailside Mod Environment Setup & Recovery");PageTitle.Text=T("Mod Environment Setup & Recovery");
         Browse.Content=T("Change folder…");Guide.Content=T(SupportInfo.GuideButton);Folder.Content=T("Open game folder");Report.Content=T("Save report…");Admin.Content=T("Restart as administrator");
@@ -109,7 +114,7 @@ public partial class RecoveryWindow:Window
     private void BrowseClicked(object sender,RoutedEventArgs e)
     {
         var dialog=new OpenFolderDialog{Title=T("Choose the Tailside folder"),InitialDirectory=root!=null&&Directory.Exists(root)?root:Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)};
-        if(dialog.ShowDialog(this)!=true)return;root=dialog.FolderName;removalCompleted=false;DetailsPanel.IsExpanded=false;LoadLanguage();LastResult.Text="";RefreshView();
+        if(dialog.ShowDialog(this)!=true)return;root=dialog.FolderName;removalCompleted=false;DetailsPanel.IsExpanded=false;LoadLanguage();friendlyResultKey=null;LastResult.Text="";RefreshView();
     }
     private void FolderClicked(object sender,RoutedEventArgs e){if(root!=null)Try(()=>Process.Start(new ProcessStartInfo(root){UseShellExecute=true}));}
     private void GuideClicked(object sender,RoutedEventArgs e)=>ModTools.Desktop.HelpSupport.OpenGuide(error=>LastResult.Text=T(error.Message));
@@ -118,7 +123,20 @@ public partial class RecoveryWindow:Window
         if(loadingLanguage||LanguageChoice.SelectedValue is not string code)return;
         Try(()=>{ModManager.UiLanguage.Select(code,persist:CanSaveAutomatically);RefreshView();});
     }
-    private void Try(Action action){try{action();}catch(UnauthorizedAccessException e){LastResult.Text=e.Message;Admin.Visibility=Visibility.Visible;}catch(Exception e){LastResult.Text=e.Message;}}
+    private void ShowError(Exception error,string context)
+    {
+        var native=error is System.ComponentModel.Win32Exception win32?$"NativeErrorCode: {win32.NativeErrorCode}\n":"";
+        diagnosticErrors.Add($"{DateTimeOffset.Now:O} | Operation: {context} | Folder: {root}\n{native}{error}");
+        if(diagnosticErrors.Count>10)diagnosticErrors.RemoveAt(0);
+        friendlyResultKey=error is UnauthorizedAccessException?PermissionMessage:
+            context=="administrator restart" && error is System.ComponentModel.Win32Exception{NativeErrorCode:1223}?ElevationCancelledMessage:null;
+        LastResult.Text=friendlyResultKey!=null?T(friendlyResultKey):error.Message;
+        if(friendlyResultKey!=null)Admin.Visibility=Visibility.Visible;
+    }
+    private void Try(Action action,string context="action"){try{action();}catch(Exception e){ShowError(e,context);}}
+    public string DiagnosticReport()=>
+        $"Tailside Mod Environment Setup & Recovery {App.ToolVersion}\n{DateTimeOffset.Now:O}\nFolder: {root}\nOwnership: {view?.Ownership}\n{view?.Installation.State}\n{view?.Runtime}\n{view?.Detail}\n{LastResult.Text}\n\nRecent technical details (up to 10 errors):\n"+
+        (diagnosticErrors.Count==0?"None":string.Join("\n\n",diagnosticErrors))+"\nLocal report; nothing uploaded.";
     public async Task ExecuteAsync(string action)
     {
         if(root==null||busy)return;var selected=root;busy=true;RefreshView();
@@ -135,9 +153,8 @@ public partial class RecoveryWindow:Window
                     default:throw new ArgumentException("Unknown action");
                 }
             });
-            LastResult.Text=T(result);if(action=="install")LoadLanguage();
-        }catch(UnauthorizedAccessException e){LastResult.Text=e.Message;Admin.Visibility=Visibility.Visible;}
-        catch(Exception e){LastResult.Text=e.Message;}
+            friendlyResultKey=null;LastResult.Text=T(result);if(action=="install")LoadLanguage();
+        }catch(Exception e){ShowError(e,action);}
         finally{busy=false;RefreshView();}
     }
     private async void PrimaryClicked(object sender,RoutedEventArgs e)
@@ -173,18 +190,18 @@ public partial class RecoveryWindow:Window
             var yes=new Button{Content=T("Remove verified files"),Margin=new Thickness(8)};var no=new Button{Content=T("Cancel"),Margin=new Thickness(8)};yes.Click+=(_,_)=>dialog.DialogResult=true;no.Click+=(_,_)=>dialog.DialogResult=false;
             buttons.Children.Add(no);buttons.Children.Add(yes);panel.Children.Add(buttons);panel.Children.Add(new TextBox{Text=RemovalSummary(),IsReadOnly=true,TextWrapping=TextWrapping.Wrap,VerticalScrollBarVisibility=ScrollBarVisibility.Auto});dialog.Content=panel;
             if(dialog.ShowDialog()==true)await ExecuteAsync("remove");
-        }catch(Exception error){LastResult.Text=error.Message;}
+        }catch(Exception error){ShowError(error,"removal preview");}
     }
     private async void KeepToolClicked(object sender,RoutedEventArgs e)=>await ExecuteAsync("tool");
     private void ReportClicked(object sender,RoutedEventArgs e)
     {
         var initial=ModTools.Desktop.HelpSupport.ReportDirectory(CanSaveAutomatically,error=>LastResult.Text=T("The default report folder is unavailable. Choose another save location."));
         var dialog=new SaveFileDialog{FileName="Tailside-ModEnvironment-report.txt",InitialDirectory=initial,Filter="Text report|*.txt"};
-        if(dialog.ShowDialog(this)==true)Try(()=>File.WriteAllText(dialog.FileName,$"Tailside Mod Environment Setup & Recovery {App.ToolVersion}\n{DateTimeOffset.Now:O}\nFolder: {root}\nOwnership: {view?.Ownership}\n{view?.Installation.State}\n{view?.Runtime}\n{view?.Detail}\n{LastResult.Text}\nLocal report; nothing uploaded."));
+        if(dialog.ShowDialog(this)==true)Try(()=>File.WriteAllText(dialog.FileName,DiagnosticReport()));
     }
     private void AdminClicked(object sender,RoutedEventArgs e)=>Try(()=>{
         var info=new ProcessStartInfo(Environment.ProcessPath!){UseShellExecute=true,Verb="runas"};if(root!=null){info.ArgumentList.Add("--game-dir");info.ArgumentList.Add(root);}Process.Start(info);Close();
-    });
+    },"administrator restart");
 }
 
 

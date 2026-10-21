@@ -170,7 +170,9 @@
     "Mod environment not installed": "Mod環境は未導入です",
     "Set up the environment needed to use mods.": "Modを使うための準備を行います",
     "Install": "インストール",
-    "Environment and game-local tool updated. Mods and settings are kept.": "Mod環境とゲーム内のツールを更新しました。Modと設定は保持されています。"
+    "Environment and game-local tool updated. Mods and settings are kept.": "Mod環境とゲーム内のツールを更新しました。Modと設定は保持されています。",
+    "You don't have permission to change this folder. To continue, choose Restart as administrator.": "このフォルダを変更する権限がありません。続けるには「管理者として再起動」を選んでください。",
+    "Restarting as administrator was cancelled. You can try again from this window at any time.": "管理者としての再起動をキャンセルしました。この画面からいつでもやり直せます。"
   },
   "displayName": "日本語",
   "languageCode": "ja"

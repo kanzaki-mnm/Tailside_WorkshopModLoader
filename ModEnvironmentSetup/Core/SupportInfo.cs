@@ -2,8 +2,8 @@ namespace ModEnvironmentSetup.Core;
 
 public static class SupportInfo
 {
-    // Set this once the public Releases/help page exists. Never open a placeholder URL.
-    public const string ReleasePageUrl = "";
+    // Stable release index; works independently of a particular release tag.
+    public const string ReleasePageUrl = "https://github.com/kanzaki-mnm/Tailside_WorkshopModLoader/releases";
     public static string GuideUrl { get; set; } = ReleasePageUrl;
     public static bool HasGuideUrl => Uri.TryCreate(GuideUrl, UriKind.Absolute, out var url) && url.Scheme == Uri.UriSchemeHttps;
     public static string GuideButton => HasGuideUrl ? "Installation & help" : "Help (not configured)";
