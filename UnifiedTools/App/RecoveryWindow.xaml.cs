@@ -66,9 +66,9 @@ public partial class RecoveryWindow:Window
             SourceText.Text="";
             StatusHeading.Text=T("Mod environment removed");
             StatusHeading.Foreground=new SolidColorBrush(Colors.DarkGreen);
-            StatusText.Text=T("The files installed by this tool have been removed. Your mods and settings are kept.");
+            StatusText.Text=T("Your mods and settings are kept.");
             UsageHint.Text=T(CleanupMessage);
-            Primary.Content=T("Check again");Primary.IsEnabled=!busy;
+            Primary.Visibility=Visibility.Collapsed;Primary.IsEnabled=false;
             return;
         }
         if(manual){
@@ -148,14 +148,14 @@ public partial class RecoveryWindow:Window
                     case "repair":controller.Setup.RepairOwned(selected);return "Verified environment files restored. Changed owned files were backed up.";
                     case "pause":controller.Manager.PauseEnvironment(selected);return "Environment disabled. Mods and settings are kept.";
                     case "resume":controller.Manager.ResumeEnvironment(selected);return "Environment re-enabled. Launch from Steam.";
-                    case "remove":var kept=controller.Remove(selected);removalCompleted=kept.Count==0;return T("Removal complete. Mods, settings, and the tool are kept.")+"\n"+(removalCompleted?T(CleanupMessage):T("Some runtime files were kept. Review the list before cleaning up the tool folder."))+"\n"+T("Kept changed or unowned runtime files:")+" "+(kept.Count==0?T("None"):string.Join("\n",kept));
+                    case "remove":var kept=controller.Remove(selected);removalCompleted=kept.Count==0;return removalCompleted?"":T("Some runtime files were kept. Review the list before cleaning up the tool folder.")+"\n"+T("Kept changed or unowned runtime files:")+" "+string.Join("\n",kept);
                     case "tool":controller.KeepTool(selected,Environment.ProcessPath!);return "Tool copy saved in the game folder.";
                     default:throw new ArgumentException("Unknown action");
                 }
             });
             friendlyResultKey=null;LastResult.Text=T(result);if(action is "install" or "update")LoadLanguage();
         }catch(Exception e){ShowError(e,action);}
-        finally{busy=false;RefreshView();}
+        finally{busy=false;RefreshView();if(action=="remove")BodyScroll.ScrollToTop();}
     }
     private async void PrimaryClicked(object sender,RoutedEventArgs e)
     {

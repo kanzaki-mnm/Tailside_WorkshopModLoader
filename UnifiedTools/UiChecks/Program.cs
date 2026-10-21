@@ -188,11 +188,21 @@ internal static class Program {
       var custom=SetupEngine.SafePath(root,"BepInEx/plugins/Keep.dll");Directory.CreateDirectory(Path.GetDirectoryName(custom)!);File.WriteAllText(custom,"keep");
       Check(window.RemovalSummary().Contains(SetupEngine.BridgePath)&&!window.RemovalSummary().Contains("Keep.dll"),"removal preview lists owned files only");
       await window.ExecuteAsync("remove");Check(!File.Exists(Path.Combine(root,"winhttp.dll"))&&File.ReadAllText(custom)=="keep","removal keeps user mod and removes owned injector");
-      Check(((TextBlock)window.FindName("LastResult")).Text.Contains("TailsideModSetup"),"removal explains manual tool-folder cleanup");
+            Check(((TextBlock)window.FindName("UsageHint")).Text.Contains("TailsideModSetup"),"removal explains manual tool-folder cleanup once");
+      Check(((TextBlock)window.FindName("LastResult")).Text=="","successful removal has no duplicate result text");
+      Check(((Button)window.FindName("Primary")).Visibility==Visibility.Collapsed,"successful removal hides Check again");
+      window.RefreshView();
+      Check(((Button)window.FindName("Primary")).Visibility==Visibility.Collapsed,"automatic refresh keeps completion without Check again");
+      Capture(window,"-removed-en");
+      ModManager.UiLanguage.Select("ja",persist:false);window.RefreshView();
+      Check(((TextBlock)window.FindName("StatusHeading")).Text=="Mod環境を撤去しました","Japanese removal heading");
+      Check(((TextBlock)window.FindName("StatusText")).Text=="Modと設定は保持しています。","Japanese concise preservation notice");
+      Capture(window,"-removed-ja");
      }
      if(scenario=="partial-remove"){
       await window.ExecuteAsync("remove");
       Check(File.Exists(SetupEngine.SafePath(root,SetupEngine.BridgePath)),"changed loader preserved on removal");
+      Check(((TextBlock)window.FindName("LastResult")).Text.Contains(SetupEngine.BridgePath),"partial removal retains file warning details");
       Check(!((TextBlock)window.FindName("LastResult")).Text.Contains(UnifiedTools.RecoveryWindow.CleanupMessage),"partial removal does not suggest deleting tool folder");
      }
      if(scenario=="changed"||scenario=="broken"){await window.ExecuteAsync("repair");Check(controller.Setup.Inspect(root).State==SetupState.Installed,"repair restores owned runtime");}
