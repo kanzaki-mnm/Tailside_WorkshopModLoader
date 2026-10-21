@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "local.workshopbridge.smoke",
+  "name": "Bridge Smoke Probe",
+  "version": "1.0.0",
+  "gameAppId": 2922570,
+  "entryAssembly": "plugins/BridgeSmokeProbe.dll",
+  "minimumLoaderVersion": "1.0.0"
+}
+

@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <GameRoot>D:/SteamLibrary/steamapps/common/Tailside</GameRoot>
+    <!-- Optional: reference an official BepInEx extraction instead of the installed copy. -->
+    <LoaderCore>D:/BuildDependencies/BepInEx/core</LoaderCore>
+    <!-- ManagedDir defaults to GameRoot/Tailside_Data/Managed. -->
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,16 @@
+bin/
+Build.local.props
+obj/
+checks/bin/
+checks/obj/
+checks/reparse-fixture/
+checks/reparse-target/
+SmokeProbe/bin/
+SmokeProbe/obj/
+TestDriver/bin/
+TestDriver/obj/
+backups/
+local-mods/
+package/
+validation/
+release/

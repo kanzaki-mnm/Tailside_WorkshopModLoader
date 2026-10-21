@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>TailsideModSetup</AssemblyName><Version>1.0.0</Version><RuntimeIdentifier>win-x64</RuntimeIdentifier><RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion><SelfContained>true</SelfContained><PublishSingleFile>true</PublishSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract><ApplicationIcon>../../ModEnvironmentSetup/App/setup.ico</ApplicationIcon><ApplicationManifest>../../ModEnvironmentSetup/App/app.manifest</ApplicationManifest></PropertyGroup><ItemGroup>
+<ProjectReference Include="../Core/UnifiedCore.csproj"/>
+<Compile Include="../../ModManager/App/UiLanguage.cs" Link="Manager/UiLanguage.cs"/>
+<Compile Include="../../ModEnvironmentSetup/Desktop/HelpSupport.cs" Link="HelpSupport.cs"/>
+<EmbeddedResource Include="../Assets/runtime.zip" LogicalName="Setup.Payload.zip"/>
+<EmbeddedResource Include="../../ModManager/App/Strings/catalog.json" LogicalName="ModManager.Strings.catalog.json"/>
+<EmbeddedResource Include="../../ModManager/App/Strings/keys.json" LogicalName="ModManager.Strings.keys.json"/>
+</ItemGroup></Project>
+

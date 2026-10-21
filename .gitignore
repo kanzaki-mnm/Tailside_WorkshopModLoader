@@ -1,0 +1,50 @@
+# Local dependencies, reports, and publication planning
+/.local/
+/SOURCE-PUBLICATION-REVIEW.md
+**/Build.local.props
+.env
+.env.*
+!.env.example
+.vs/
+.idea/
+*.user
+*.suo
+
+# Build products (including test references copied by MSBuild)
+**/bin/
+**/obj/
+**/publish*/
+**/release*/
+**/validation/
+**/fixtures/
+**/backups/
+**/local-mods/
+**/package/
+**/reparse-fixture/
+**/reparse-target/
+*.dll
+*.exe
+*.pdb
+*.zip
+*.log
+*.log.err
+
+# Steam publishing state and credentials
+**/steamcmd/
+/WorkshopPublishing/content/
+/WorkshopPublishing/item.vdf
+ssfn*
+*.sentry
+*.key
+*.pem
+
+# Local installation state
+install.json
+tool-install.json
+recovery.json
+manager-language.json
+
+# One maintained public guide; historical notes stay local.
+*.md
+!/README.md
+/WorkshopPublishing/

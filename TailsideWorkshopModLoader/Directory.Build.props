@@ -1,0 +1,16 @@
+<Project>
+  <!-- Optional machine-local settings. Command-line -p: properties take precedence. -->
+  <Import Project="$(MSBuildThisFileDirectory)Build.local.props" Condition="Exists('$(MSBuildThisFileDirectory)Build.local.props')" />
+  <PropertyGroup>
+    <GameRoot Condition="'$(GameRoot)' == '' and '$(MSBuildProgramFiles32)' != ''">$(MSBuildProgramFiles32)/Steam/steamapps/common/Tailside</GameRoot>
+    <ManagedDir Condition="'$(ManagedDir)' == '' and '$(GameRoot)' != ''">$(GameRoot)/Tailside_Data/Managed</ManagedDir>
+    <LoaderCore Condition="'$(LoaderCore)' == '' and '$(GameRoot)' != ''">$(GameRoot)/BepInEx/core</LoaderCore>
+  </PropertyGroup>
+  <Target Name="ValidateLoaderReferences" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <_MissingLoaderReference Include="@(Reference)" Condition="'%(Reference.HintPath)' != '' and !Exists('%(Reference.HintPath)')" />
+    </ItemGroup>
+    <Error Condition="'@(_MissingLoaderReference)' != ''"
+           Text="Required reference DLLs not found: @(_MissingLoaderReference->'%(HintPath)', ', '). Set GameRoot (Tailside folder), LoaderCore (BepInEx/core), or ManagedDir using -p: properties or Build.local.props. See the repository README section: Building from source." />
+  </Target>
+</Project>
