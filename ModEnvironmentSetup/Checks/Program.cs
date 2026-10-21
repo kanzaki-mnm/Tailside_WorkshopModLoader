@@ -26,6 +26,16 @@ try
  Check(File.ReadAllText(save)=="keep","save untouched");
  Check(payload.All(p=>SetupEngine.HashFile(SetupEngine.SafePath(fresh,p.Path))==p.Hash),"installed hashes");
  var japanesePath=SetupEngine.SafePath(fresh,"BepInEx/TailsideModSetup/languages/ja.json");
+ var language=JsonSerializer.Deserialize<System.Text.Json.Nodes.JsonObject>(File.ReadAllText(japanesePath))!;
+ var translations=(System.Text.Json.Nodes.JsonObject)language["translations"]!;
+ translations.Remove("Cancel");translations["Install"]="custom install";translations["CustomKey"]="keep custom";
+ File.WriteAllText(japanesePath,language.ToJsonString());
+ Check(engine.Inspect(fresh).State==SetupState.NeedsUpdate,"missing language key offers update at same version");
+ engine.Install(fresh);
+ language=System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(japanesePath))!.AsObject();translations=language["translations"]!.AsObject();
+ Check(translations["Cancel"]!.GetValue<string>()=="キャンセル","update adds new Japanese key");
+ Check(translations["Install"]!.GetValue<string>()=="custom install"&&translations["CustomKey"]!.GetValue<string>()=="keep custom","update preserves edited and custom translations");
+ Check(engine.Inspect(fresh).State==SetupState.Installed,"language update settles without repeated update");
  File.WriteAllText(japanesePath,"user-edited translation");
  Check(engine.Inspect(fresh).State==SetupState.Installed,"edited translation does not block setup");
  File.Delete(japanesePath);

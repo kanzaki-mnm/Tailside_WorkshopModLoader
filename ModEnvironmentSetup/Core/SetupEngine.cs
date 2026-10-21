@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace ModEnvironmentSetup.Core;
@@ -151,7 +152,7 @@ public sealed class SetupEngine
             if (receipt != null)
             {
                 if (!complete) return new(SetupState.NeedsRepair,"Some setup files are missing. Repair will restore them.",true,receipt.Files.Count>0);
-                bool update = payload.Any(p => owned.Contains(p.Path) && HashFile(SafePath(root,p.Path)) != p.Hash);
+                bool update = payload.Any(p => owned.Contains(p.Path) && HashFile(SafePath(root,p.Path)) != p.Hash || MissingLanguageKeys(root,p) != null);
                 return update ? new(SetupState.NeedsUpdate,"An update for the Mod environment is ready.",true,true) :
                     new(SetupState.Installed,"Your Mod environment is ready. Launch Tailside from Steam as usual.",false,receipt.Files.Count>0);
             }
@@ -176,8 +177,9 @@ public sealed class SetupEngine
             var path = SafePath(root,file.Path);
             if(IsLanguageDefault(file.Path)||IsToolLicense(file.Path))
             {
-                // Seed editable language files on setup only; never overwrite or own user translations.
+                // Preserve existing translations; add only keys introduced by newer defaults.
                 if(!File.Exists(path))writes.Add((file.Path,file.Bytes));
+                else if(MissingLanguageKeys(root,file) is {} merged)writes.Add((file.Path,merged));
                 continue;
             }
             var owned = receipt.Files.FindIndex(f => f.Path.Equals(file.Path,StringComparison.OrdinalIgnoreCase));
@@ -192,6 +194,22 @@ public sealed class SetupEngine
         Apply(root,writes);
     }
 
+    private static byte[]? MissingLanguageKeys(string root,PayloadFile file)
+    {
+        if(!IsLanguageDefault(file.Path)||!file.Path.EndsWith(".json",StringComparison.Ordinal))return null;
+        var path=SafePath(root,file.Path);
+        if(!File.Exists(path))return null; // Deliberately removed language packs remain optional.
+        try {
+            if(new FileInfo(path).Length>1024*1024)return null;
+            var current=JsonNode.Parse(File.ReadAllBytes(path)) as JsonObject;
+            var defaults=JsonNode.Parse(file.Bytes) as JsonObject;
+            if(current?["languageCode"]?.GetValue<string>()!=defaults?["languageCode"]?.GetValue<string>() ||
+                current?["translations"] is not JsonObject translations || defaults?["translations"] is not JsonObject additions)return null;
+            bool changed=false;
+            foreach(var entry in additions)if(!translations.ContainsKey(entry.Key)){translations.Add(entry.Key,entry.Value?.DeepClone());changed=true;}
+            return changed?JsonSerializer.SerializeToUtf8Bytes(current,new JsonSerializerOptions{WriteIndented=true}):null;
+        }catch(Exception e) when(e is JsonException or InvalidOperationException){return null;}
+    }
     private static bool IsToolLicense(string path)=>path.StartsWith(ToolsPath+"/licenses/",StringComparison.Ordinal);
 
     private static bool IsLanguageDefault(string path)=>path is
@@ -241,7 +259,8 @@ public sealed class SetupEngine
         foreach(var file in payload)
         {
             var path=SafePath(root,file.Path);
-            if(IsLanguageDefault(file.Path)||IsToolLicense(file.Path)){if(!File.Exists(path))writes.Add((file.Path,file.Bytes));continue;}
+            if(IsLanguageDefault(file.Path)||IsToolLicense(file.Path)){if(!File.Exists(path))writes.Add((file.Path,file.Bytes));
+                else if(MissingLanguageKeys(root,file) is {} merged)writes.Add((file.Path,merged));continue;}
             if(File.Exists(path)&&HashFile(path)==file.Hash)continue;
             if(File.Exists(path))writes.Add((backup+file.Path,File.ReadAllBytes(path)));
             writes.Add((file.Path,file.Bytes));receipt.Files.RemoveAll(x=>x.Path==file.Path);receipt.Files.Add(new(file.Path,file.Hash));

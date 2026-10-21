@@ -153,7 +153,7 @@ public partial class RecoveryWindow:Window
                     default:throw new ArgumentException("Unknown action");
                 }
             });
-            friendlyResultKey=null;LastResult.Text=T(result);if(action=="install")LoadLanguage();
+            friendlyResultKey=null;LastResult.Text=T(result);if(action is "install" or "update")LoadLanguage();
         }catch(Exception e){ShowError(e,action);}
         finally{busy=false;RefreshView();}
     }

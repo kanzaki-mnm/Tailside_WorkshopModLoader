@@ -152,7 +152,7 @@ Reference: [BepInEx Proton/Wine guidance](https://docs.bepinex.dev/master/articl
 
 ## Tool languages
 
-The app keeps automatic OS-language selection and manual language switching. English and Japanese packs are external JSON files at `BepInEx/TailsideModSetup/languages`. Clean first use is English before external translations are installed; missing translations fall back to English.
+The app keeps automatic OS-language selection and manual language switching. English and Japanese packs are external JSON files at `BepInEx/TailsideModSetup/languages`. Clean first use is English before external translations are installed; missing translations fall back to English. Updates add newly introduced keys to existing valid English/Japanese packs while preserving existing values and custom keys. Removed packs remain optional; malformed packs are left unchanged.
 
 To add a language, copy `en.json`, set `languageCode` to a BCP 47 tag (for example `fr` or `pt-BR`), set `displayName` to the language's own name, and translate values in `translations`. Keep English keys, `{0}` placeholders and intentional newlines unchanged. Save UTF-8 JSON and restart the tool.
 
