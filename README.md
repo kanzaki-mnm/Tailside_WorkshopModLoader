@@ -248,7 +248,9 @@ Verified locally: zero-warning builds, loader metadata/real-DLL and cleanup chec
 
 Also verified in the marked isolated game: installation/update/removal from downloaded draft assets, vanilla startup after disabling/removing BepInEx, six actual Windows permission-denial cases, and real UAC acceptance/cancellation. Friendly English/Japanese permission and cancellation notices passed 62 UI checks; technical details remain in diagnostic reports. These were separate runs, not one complete rerun of every check. The Releases/help URL is configured.
 
-Still pending before binary release: real individual-Workshop subscription/update/unsubscription, final third-party redistribution review (including matching UnityDoorstop source availability), maintainer download/installation acceptance, and publication approval. Windows 10, clean Windows and Deck/Proton remain untested. Runtime/tool update is not a single power-loss-proof transaction; retry may be needed if copying the retained exe fails after an environment update.
+Maintainer tests on the normal Windows 11 game installation also passed: manual and downloaded-exe installation, temporary disable/re-enable/removal, and real private Workshop subscription/update/unsubscription with both installation methods. Steam removed the files on unsubscription, so retained unsubscribed files were not exercised in these live runs. The private test item was deleted afterward and 12 everyday plugins/settings were restored and loaded successfully. Third-party notices and the fixed UnityDoorstop corresponding-source archive are supplied with the release candidate.
+
+Still pending before binary release: final release text/asset review and publication approval. Windows 10, clean Windows and Deck/Proton remain untested. Runtime/tool update is not a single power-loss-proof transaction; retry may be needed if copying the retained exe fails after an environment update.
 
 Historical development/validation notes remain local and are excluded from publication. This README is the maintained public guide.
 
@@ -257,3 +259,5 @@ Historical development/validation notes remain local and are excluded from publi
 My original code and project icons are licensed under [0BSD](https://spdx.org/licenses/0BSD).
 Third-party components retain their respective licenses. Their original notices are preserved in `TailsideModSetup/Assets` and included with applicable binary distributions.
 
+
+The assisted installer includes unmodified UnityDoorstop 4.5.0 (LGPL-2.1). Its complete [corresponding source archive](https://github.com/kanzaki-mnm/Tailside_WorkshopModLoader/releases/download/v1.0.0/UnityDoorstop-4.5.0-source.zip), including build scripts, is supplied alongside the installer on the same release. It is not an installation package. Source commit: `33dab9a6733862eb81869ff08431d9478b28784b`. See `ThirdPartyNotices.txt` for component versions, source locations and original license texts.

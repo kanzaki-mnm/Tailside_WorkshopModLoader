@@ -1,8 +1,9 @@
 param([switch]$DevelopmentPreview,[string]$BepInExZip)
-if(!$DevelopmentPreview){throw 'Development preview only. Use -DevelopmentPreview for isolated tests; Workshop end-to-end verification and release approval are still pending.'}
+if(!$DevelopmentPreview){throw 'Development preview only. Use -DevelopmentPreview for isolated tests; release publication approval is still pending.'}
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $assets=Join-Path $PSScriptRoot 'Assets'
+$noticeFiles=@(Get-ChildItem -LiteralPath $assets -File | Where-Object {$_.Name -like '*LICENSE.txt' -or $_.Name -eq 'ThirdPartySources.txt'} | Sort-Object Name)
 $zipPath=Join-Path $PSScriptRoot 'Assets/runtime.zip'
 $bridge=Join-Path $PSScriptRoot '../TailsideWorkshopModLoader/release/BepInEx/patchers/TailsideWorkshopModLoader.dll'
 if (!(Test-Path -LiteralPath $bridge)) { throw 'Build TailsideWorkshopModLoader first.' }
@@ -30,7 +31,7 @@ try {
     }
     # Keep the installed guide available without publishing a second source document.
     Add-PayloadFile 'BepInEx/TailsideModSetup/languages/README.md' ([IO.File]::ReadAllBytes((Join-Path $PSScriptRoot '../README.md')))
-    foreach($license in Get-ChildItem -LiteralPath $assets -Filter '*LICENSE.txt') {
+    foreach($license in $noticeFiles) {
         Add-PayloadFile ('BepInEx/TailsideModSetup/licenses/'+$license.Name) ([IO.File]::ReadAllBytes($license.FullName))
     }
     $entry=$output.CreateEntry('hashes.json')
@@ -42,5 +43,5 @@ if($LASTEXITCODE){throw 'Unified build failed'}
 $release=Join-Path $PSScriptRoot 'release-preview'
 New-Item -ItemType Directory -Force -Path $release | Out-Null
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'publish-preview/TailsideModSetup.exe') -Destination $release
-$notices=Get-ChildItem -LiteralPath $assets -Filter '*LICENSE.txt' | ForEach-Object { $_.Name+"`r`n"+[IO.File]::ReadAllText($_.FullName) }
+$notices=$noticeFiles | ForEach-Object { $_.Name+"`r`n"+[IO.File]::ReadAllText($_.FullName) }
 [IO.File]::WriteAllText((Join-Path $release 'ThirdPartyNotices.txt'),($notices -join "`r`n"))

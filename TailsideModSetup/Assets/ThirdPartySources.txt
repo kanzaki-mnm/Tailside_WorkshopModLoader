@@ -1,0 +1,30 @@
+Third-party components in TailsideModSetup 1.0.0
+
+Original code and project icons: 0BSD. Third-party components retain their own licenses.
+The original license texts are supplied alongside this notice.
+
+BepInEx 5.4.23.5 - MIT
+https://github.com/BepInEx/BepInEx/tree/v5.4.23.5
+HarmonyX 2.9.0 - MIT; original Harmony notice is included separately.
+https://github.com/BepInEx/HarmonyX/tree/v2.9.0
+BepInEx.Harmony compatibility libraries - MIT
+https://github.com/BepInEx/BepInEx.Harmony/tree/d4cdcb4cdeac14a0b77012165f5f5a9f5032a9fa
+MonoMod.RuntimeDetour and MonoMod.Utils 22.1.29.1 - MIT
+https://github.com/MonoMod/MonoMod/tree/v22.01.29.01
+Mono.Cecil and supporting assemblies 0.10.4 - MIT
+https://github.com/jbevain/cecil/tree/0.10.4
+.NET runtime and WPF 10.0.12 - MIT and the included third-party notices
+https://github.com/dotnet/runtime/tree/v10.0.12
+https://github.com/dotnet/wpf/tree/v10.0.12
+
+UnityDoorstop 4.5.0 - GNU Lesser General Public License version 2.1
+The installer redistributes the unmodified official Windows x64 winhttp.dll.
+Binary SHA-256: 8c6cdbc38836dee87e3368f5de1994d7c0ccebf29e4ce7aba3c0981f9375412c
+Corresponding source commit: 33dab9a6733862eb81869ff08431d9478b28784b
+Complete unmodified upstream source, including build scripts and LICENSE:
+https://github.com/kanzaki-mnm/Tailside_WorkshopModLoader/releases/download/v1.0.0/UnityDoorstop-4.5.0-source.zip
+Source archive SHA-256: a2d9b8d711f76e2a786c8c8557b5885901930fd3a49289996c1bcfae4da558a7
+Upstream source:
+https://github.com/NeighTools/UnityDoorstop/tree/33dab9a6733862eb81869ff08431d9478b28784b
+The source ZIP is for license compliance and development, not game installation.
+UnityDoorstop is provided without warranty under its included license.
